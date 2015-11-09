@@ -1,0 +1,171 @@
+%
+% tlarray.sty
+%
+
+%%%% package declaration
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{tlarray}
+\def\tlar@pkgname{tlarray}
+
+%%%% error messages
+\def\tlar@warn{\PackageWarningNoLine\tlar@pkgname}
+\def\tlar@error{\PackageError\tlar@pkgname}
+
+%%%% counters and ifs
+\newif\if@tlar@loop@
+
+%%%% check commands
+\def\tlar@check@array#1{\@ifundefined{tlar@#1@num}{\tlar@error{Undefined Array}}{}}
+\def\tlar@check@index#1#2{\begingroup
+  \@tempcnta#2\@tempcntb\csname tlar@#1@num\endcsname\relax
+  \advance\@tempcntb\m@ne
+  \ifnum\@tempcnta<\z@\tlar@warn{You can't use minus number for index}\fi
+  \ifnum\@tempcnta>\@tempcntb\tlar@warn{Try to access non-exist index}\fi
+\endgroup}
+
+%%%% basic commands
+\def\NewArray{\tlar@new@array}
+\def\tlar@new@array#1{\expandafter\xdef\csname tlar@#1@num\endcsname{0}}
+
+\def\LengthofArray#1{\tlar@check@array{#1}\csname tlar@#1@num\endcsname}
+\let\SizeofArray\LengthofArray
+
+\def\InsertArray#1#2#3{\begingroup  % #1:array(str) #2:index(int) #3:value(any)
+  \tlar@check@array{#1}%
+  \@tempcnta#2\@tempcntb\csname tlar@#1@num\endcsname\relax
+  \ifnum\@tempcnta>\@tempcntb\advance\@tempcnta\@ne\expandafter
+    \xdef\csname tlar@#1@num\endcsname{\the\@tempcnta}\advance\@tempcnta\m@ne
+  \else\advance\@tempcntb\@ne\expandafter
+    \xdef\csname tlar@#1@num\endcsname{\the\@tempcntb}\fi
+  \expandafter\xdef\csname tlar@#1@#2\endcsname{#3}%
+\endgroup}
+
+\def\PushArray#1#2{% #1:array(str) #2:value(any)
+  \tlar@check@array{#1}%
+  \tlar@push@array{#1}{#2}%
+}
+
+\def\tlar@push@array#1#2{\begingroup  % #1:array(str) #2:value(any)
+  \@tempcnta\csname tlar@#1@num\endcsname\relax
+  \expandafter\gdef\csname tlar@#1@\the\@tempcnta\endcsname{#2}%
+  \advance\@tempcnta\@ne
+  \expandafter\xdef\csname tlar@#1@num\endcsname{\the\@tempcnta}%
+\endgroup}
+
+\def\tlar@push@array@r#1#2{\tlar@push@array{#2}{#1}}%
+
+\def\PopArray#1{% #1:array(str)
+  \tlar@check@array{#1}%
+  \tlar@pop@array{#1}%
+}
+
+\def\tlar@pop@array#1{\begingroup  % #1:array(str)
+  \@tempcnta\csname tlar@#1@num\endcsname\relax
+  \ifnum\@tempcnta>\z@
+    \advance\@tempcnta\m@ne
+    \csname tlar@#1@\the\@tempcnta\endcsname
+    \expandafter\global\expandafter\let\csname tlar@#1@\the\@tempcnta\endcsname\relax
+    \expandafter\xdef\csname tlar@#1@num\endcsname{\the\@tempcnta}%
+  \else\tlar@warn{Try to pop empty array}\fi
+\endgroup}
+
+\def\ShiftArray#1{% #1:array(str)
+  \tlar@check@array{#1}%
+  \tlar@shift@array{#1}%
+}
+
+\def\tlar@shift@array#1{\begingroup  % #1:array(str)
+  \@tempcnta\csname tlar@#1@num\endcsname\relax
+  \ifnum\@tempcnta>\z@
+    \csname tlar@#1@0\endcsname
+    \@tempcntb\@ne\relax
+    \@whilenum\@tempcntb<\@tempcnta\do{%
+      \expandafter\let\expandafter\tlar@temp\csname tlar@#1@\the\@tempcntb\endcsname
+      \advance\@tempcntb\m@ne
+      \expandafter\global\expandafter\let\csname tlar@#1@\the\@tempcntb\endcsname\tlar@temp
+      \advance\@tempcntb\tw@
+    }%
+    \expandafter\global\expandafter\let\csname tlar@#1@\the\@tempcntb\endcsname\relax
+    \advance\@tempcnta\m@ne
+    \expandafter\xdef\csname tlar@#1@num\endcsname{\the\@tempcnta}%
+  \else\tlar@warn{Try to shift empty array}\fi
+\endgroup}
+
+\def\UnshiftArray#1#2{% #1:array(str) #2:value(any)
+  \tlar@check@array{#1}%
+  \tlar@unshift@array{#1}{#2}%
+}
+
+\def\tlar@unshift@array#1#2{\begingroup  % #1:array(str) #2:value(any)
+  \@tempcnta\csname tlar@#1@num\endcsname\relax
+  \@tempcntb\@tempcnta\relax
+  \advance\@tempcntb\m@ne
+  \@whilenum\@tempcntb>\m@ne\do{%
+    \expandafter\let\expandafter\tlar@temp\csname tlar@#1@\the\@tempcntb\endcsname
+    \advance\@tempcntb\@ne
+    \expandafter\global\expandafter\let\csname tlar@#1@\the\@tempcntb\endcsname\tlar@temp
+    \advance\@tempcntb\m@ne\advance\@tempcntb\m@ne
+  }%
+  \expandafter\gdef\csname tlar@#1@0\endcsname{#2}%
+  \advance\@tempcnta\@ne
+  \expandafter\xdef\csname tlar@#1@num\endcsname{\the\@tempcnta}%
+\endgroup}
+
+\def\GetArray#1#2{\begingroup  % #1:array(str) #2:index(int)
+  \tlar@check@array{#1}\tlar@check@index{#1}{#2}%
+  \@tempcnta#2\@tempcntb\csname tlar@#1@num\endcsname\relax
+  \ifnum\@tempcnta<\@tempcntb\relax\csname tlar@#1@#2\endcsname\fi
+\endgroup}
+
+\def\ShowArray#1{\begingroup  % #1:array(str)
+  \tlar@check@array{#1}%
+  \@tempcnta\z@\@tempcntb\csname tlar@#1@num\endcsname\relax
+  \advance\@tempcntb\m@ne
+  \@whilenum\@tempcnta<\@tempcntb\do{%
+    \csname tlar@#1@\the\@tempcnta\endcsname,\space
+    \advance\@tempcnta\@ne
+  }\csname tlar@#1@\the\@tempcnta\endcsname
+\endgroup}
+
+\def\toStringArray#1{\begingroup  % #1:array(str)
+  \tlar@check@array{#1}%
+  \@tempcnta\z@\@tempcntb\csname tlar@#1@num\endcsname\relax
+  \@whilenum\@tempcnta<\@tempcntb\do{%
+    \csname tlar@#1@\the\@tempcnta\endcsname
+    \advance\@tempcnta\@ne
+  }%
+\endgroup}
+
+\def\StringtoArray#1#2{\begingroup  % #1:array(str)  #2:value(any)
+  \tlar@check@array{#1}%
+  \@tfor\member:=#2\do{\expandafter\tlar@push@array@r\expandafter{\member}{#1}}%
+\endgroup}
+
+\def\XSwapArray#1#2#3#4{% #1:array1(str) #2:index1(int) #3:array2(str) #4:index2(int)
+  \tlar@check@array{#1}\tlar@check@array{#3}\tlar@xswap{#1}{#2}{#3}{#4}%
+}
+
+\def\SwapArray#1#2#3{% #1:array1(str) #2:index1(int) #3:index2(int)
+  \tlar@check@array{#1}\tlar@xswap{#1}{#2}{#1}{#3}%
+}
+
+\def\tlar@xswap#1#2#3#4{\begingroup
+  \@tempcnta#2\@tempcntb#4\relax
+  \expandafter\let\expandafter\tlar@tempa\csname tlar@#1@\the\@tempcnta\endcsname
+  \expandafter\let\expandafter\tlar@tempb\csname tlar@#3@\the\@tempcntb\endcsname
+  \expandafter\global\expandafter\let\csname tlar@#1@\the\@tempcnta\endcsname\tlar@tempb
+  \expandafter\global\expandafter\let\csname tlar@#3@\the\@tempcntb\endcsname\tlar@tempa
+\endgroup}
+
+\def\ReverseArray#1{\begingroup  % #1:aray(str)
+  \tlar@check@array{#1}%
+  \@tempcnta\z@\@tempcntb\csname tlar@#1@num\endcsname\relax
+  \advance\@tempcntb\m@ne\@tlar@loop@true
+  \@whilesw\if@tlar@loop@\fi{%
+    \tlar@xswap{#1}{\@tempcnta}{#1}{\@tempcntb}%
+    \advance\@tempcnta\@ne\advance\@tempcntb\m@ne
+    \ifnum\@tempcnta<\@tempcntb\else\@tlar@loop@false\fi
+  }%
+\endgroup}
+
+%% EOF
