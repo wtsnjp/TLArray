@@ -8,14 +8,16 @@
 \newcommand{\Note}{\par\noindent ※}
 \newenvironment{syntax}{\begin{quote}\small}{\end{quote}}
 
-\title{\texttt{tlarray.sty} (v0.1) \\ 簡易マニュアル}
+\title{\textsf{TLArray}パッケージ (v0.2) \\ 簡易マニュアル}
 \author{ワトソン}
 
 \begin{document}
 
 \maketitle
 
-\section{定義}
+\section{概要}
+
+\subsection{基本的な定義}
 
 \textsf{TLArray}パッケージにおける\textbf{配列}とは，複数のトークン列を扱うことのできる
 データ構造をさす．各配列は半角の英数字により構成される\textbf{配列名}をもち，また，各配列の
@@ -25,9 +27,29 @@
 
 ある配列に対して，その保持する要素の数を\textbf{長さ}または\textbf{サイズ}という．長さが0の
 配列を\textbf{空の配列}と呼ぶ．配列が保持するデータに応じた``型''のようなものは存在しないが，
-一部の命令はすべての要素が整数（整数を表す文字列またはカウンタレジスタ）の場合にのみ動作する．
-そのため，本マニュアルにおいては，便宜的にすべての要素が整数であるものを\textbf{整数配列}と
-呼ぶことにする．
+一部の命令はすべての要素が整数（展開すると整数を表す文字列になるトークン列またはカウンタ
+レジスタ）の場合にのみ動作する．そのため本資料においては，便宜的にすべての要素が整数である
+ものを\textbf{整数配列}と呼ぶことにする．
+
+\subsection{表記法}
+
+紙面で配列を表現する場合は，各要素を順にカンマ区切りで並べ，配列全体を各括弧で囲って表現する
+こととする．以下にいくつか例を示す．
+%
+\begin{quote}
+[ ]（空の配列），[1, 2, 3]，[abc, |\foo|, def, |\bar|]
+\end{quote}
+
+\subsection{取得と出力}
+
+\textsf{TLArray}パッケージにおいて，\textbf{取得}とは指定した制御綴（以下，\textbf{ターゲット}
+と呼ぶ）に値を格納すること，\textbf{出力}とはDVIやPDFに値を印字することを指す．ここでいう値とは，
+完全展開された状態のトークン列である．本パッケージが提供する命令の中には，取得する値が整数
+であることが確実であるものもあるが，そうした場合にもターゲットには「整数を表す文字トークン列」
+という形でしか値を渡すことは出来ない．
+
+また配列に渡したトークン列は必ず展開されずに配列内に保持されるが，これらのトークン列を取得または
+出力した場合，原則としてその操作を行った時点で完全に展開されることに留意されたい．
 
 \section{配列の宣言}
 
@@ -37,26 +59,29 @@
 |\NewArray{|\Meta{配列名}|}|
 \end{syntax}
 %
-このように |\NewArray| は\Meta{配列名}を引数にとり，当該の名称をもつ配列を宣言する．
+このように |\NewArray| は\Meta{配列名}を引数にとり，当該の名称をもつ空の配列を生成する．
 \Meta{配列名}には基本的な半角英数字のみが使用可能であり，その他はサポート対象外とする
-（実際には使用可能である場合もある）．
+（実際には使用できる場合もある）．
 
 以降に登場するすべての命令は，この |\NewArray| で宣言済みの配列に対してのみ正常に動作する．
 
-\section{配列の表示}
+\section{配列の取得・出力}
 
-|\LengthofArray| を用いると，指定した配列の長さを取得することができる．
-なお，|\LengthofArray| には |\SizeofArray| という別名も存在する．
+|\LengthofArray| を用いると，指定した配列の長さ（サイズ）を取得または出力することができる．なお，
+|\LengthofArray| には |\SizeofArray| という別名も存在する．
 %
 \begin{syntax}
-|\LengthofArray{|\Meta{配列名}|}| \\
-|\SizeofArray{|\Meta{配列名}|}|
+|\LengthofArray[|\Meta{ターゲット}|]{|\Meta{配列名}|}| \\
+|\SizeofArray[|\Meta{ターゲット}|]{|\Meta{配列名}|}|
 \end{syntax}
+%
+上記の書式において，\Meta{ターゲット}を指定した場合は取得，省略した場合は出力が行われる
+（以下同様）．
 
-配列の特定の要素を取得するには |\GetArray| 命令を使用する．
+配列の特定の要素を取得または出力するには |\GetArray| 命令を使用する．
 %
 \begin{syntax}
-|\GetArray{|\Meta{配列名}|}{|\Meta{インデックス}|}|
+|\GetArray[|\Meta{ターゲット}|]{|\Meta{配列名}|}{|\Meta{インデックス}|}|
 \end{syntax}
 
 さらに |\ShowArray| 命令を用いれば，すべての要素をカンマ区切りで出力することも可能である．
@@ -65,25 +90,7 @@
 |\ShowArray{|\Meta{配列名}|}|
 \end{syntax}
 
-\section{要素の挿入と取り出し}
-
-\subsection{Insert}
-
-|\InsertArray| 命令を用いると，任意の配列の任意のインデックスに要素を追加することができる．
-%
-\begin{syntax}
-|\InsertArray{|\Meta{配列名}|}{|\Meta{インデックス}|}{|\Meta{値}|}|
-\end{syntax}
-
-なお，この命令は指定箇所に\textbf{破壊的な代入}を行いますので使用時には十分注意されたい．
-すなわち指定した配列の指定インデックスに既に要素が存在していた場合，その値を上書きする．
-
-また，インデックスに当該配列の長さ以上の値を指定した場合，間の要素には |\relax| が代入された
-状態となり，配列の長さは指定インデックスから1を減じた値に変更される．
-
-\Note\textsf{TLArray}パッケージでは |\relax| を一般的な言語におけるnillに相当するものと
-捉えている．したがって，|\InsertArray| 命令の第三引数である\Meta{値}に |\relax| を指定する
-ことで，|\InsertArray| 命令を任意の要素の``削除''にも利用することが可能である．
+\section{配列の末尾・先頭に対する操作}
 
 \subsection{PushとPop}
 
@@ -93,22 +100,22 @@
 |\PushArray{|\Meta{配列名}|}{|\Meta{値}|}|
 \end{syntax}
 
-一方，|\PopArray| 命令は末尾の要素を取得（出力）し，その要素を配列から除去する．
+一方，|\PopArray| 命令は末尾の要素を取得または出力し，その要素を配列から除去する．
 %
 \begin{syntax}
-|\PopArray{|\Meta{配列名}|}|
+|\PopArray[|\Meta{ターゲット}|]{|\Meta{配列名}|}|
 \end{syntax}
 
 \subsection{ShiftとUnshift}
 
-|\ShiftArray| 命令は先頭の要素を取得（出力）し，その要素を配列から除去する．その後，配列に
+|\ShiftArray| 命令は先頭の要素を取得または出力し，その要素を配列から除去する．その後，配列に
 要素が残存していた場合にはすべての要素のインデックスが1つ前にずらされる．
 %
 \begin{syntax}
-|\ShiftArray{|\Meta{配列名}|}|
+|\ShiftArray[|\Meta{ターゲット}|]{|\Meta{配列名}|}|
 \end{syntax}
 
-|\UnshiftArray| 命令は，指定した配列の先頭に要素を追加する．このとき，元々存在していた要素の
+|\UnshiftArray| は指定した配列の先頭に要素を追加する．このとき元々存在していた要素の
 インデックスは1つずつ後ろにずらされる．
 %
 \begin{syntax}
@@ -119,6 +126,69 @@
 方がよい．
 
 \section{配列に対する操作}
+
+\subsection{要素の挿入}
+
+|\InsertArray| を用いると，任意の配列の任意のインデックスに要素を追加することができる．
+%
+\begin{syntax}
+|\InsertArray{|\Meta{配列名}|}{|\Meta{インデックス}|}{|\Meta{値}|}|
+\end{syntax}
+
+上記の書式で指定したインデックスが当該配列の長さ未満であった場合，挿入位置以降に元々存在した
+要素のインデックスは1つずつ後ろにずらされる．すなわち，[1, 2, 3]という形の配列\texttt{foo}に
+対して |\InsertArray{foo}{1}{x}| を行うと[1, x, 2, 3]となる．
+
+また，インデックスに当該配列の長さ以上の値を指定した場合，元々の配列の末尾と挿入位置の間の
+要素には |\relax| が代入された状態となり，配列の長さは指定インデックスから1を減じた値に
+変更される．
+
+\subsection{要素の削除}
+
+|\DeleteArray| は任意の配列の任意の要素を削除する．このとき，削除した要素よりも後ろに存在して
+いた要素のインデックスはすべて1つずつ前にずらされる．
+%
+\begin{syntax}
+|\DeleteArray{|\Meta{配列名}|}{|\Meta{インデックス}|}|
+\end{syntax}
+
+\subsection{要素の更新}
+
+|\SpliceArray| は任意の配列の任意の要素を指定した値に更新する．
+%
+\begin{syntax}
+|\SpliceArray{|\Meta{配列名}|}{|\Meta{インデックス}|}{|\Meta{値}|}|
+\end{syntax}
+
+なお，この命令は指定箇所に\textbf{破壊的な代入}を行うためのものなので，使用時には十分
+注意されたい．
+
+\Note\textsf{TLArray}パッケージでは |\relax| を一般的な言語におけるnillに相当するものと
+捉えている．したがって |\SpliceArray| 命令の第三引数である\Meta{値}に |\relax| を指定する
+ことで，任意の要素の``削除''に近いことが可能であり，不都合がない場合はこちらの方法を用いた
+方が |\DeleteArray| による削除より高速に動作する．
+
+\subsection{要素の置換}
+
+|\ReplaceArray| は指定した値と一致する要素を，すべて指定の値に置換する．
+%
+\begin{syntax}
+|\SpliceArray{|\Meta{配列名}|}{|\Meta{検索値}|}{|\Meta{置換値}|}|
+\end{syntax}
+%
+これにより，対象の配列で\Meta{検索値}と一致する値をもつ要素は，すべて\Meta{置換値}に
+置換される．
+
+\Note \Meta{検索値}と一致する要素の判定は，それぞれの値（非展開）を代入した制御綴を
+プリミティブ |\ifx| で比較することにより行われる．
+
+\subsection{要素の除去}
+
+|\RemoveArray| は指定した値と一致する要素を，すべて削除する（この削除は |\DeleteArray| と同じ）．
+%
+\begin{syntax}
+|\RemoveArray{|\Meta{配列名}|}{|\Meta{検索値}|}|
+\end{syntax}
 
 \subsection{要素の交換}
 
@@ -136,35 +206,98 @@
 
 \subsection{配列の反転}
 
-|\ReverseArray| 命令は，指定した配列の要素の順序を逆転させる．
+|\ReverseArray| は，指定した配列の要素の順序を逆転させる．
 %
 \begin{syntax}
 |\ReverseArray{|\Meta{配列名}|}|
 \end{syntax}
 
-\subsection{整数配列のソート}
+\subsection{要素の展開}
 
-未実装．
+|\ExpandArray| は指定した要素を，その時点で完全展開する．
+%
+\begin{syntax}
+|\ExpandArray{|\Meta{配列名}|}{|\Meta{インデックス}|}|
+\end{syntax}
+
+\section{整数配列に対する操作}
+
+この節で説明する命令は整数配列に対してのみ有効である．それ以外の配列に対して用いると
+エラーになるので注意されたい．
+
+\subsection{最大値と最小値}
+
+|\MaxofArray| は指定した整数配列に含まれる最大の数を取得または出力する．
+%
+\begin{syntax}
+|\MaxofArray[|\Meta{ターゲット}|]{|\Meta{配列名}|}|
+\end{syntax}
+
+逆に，|\MinofArray| は指定した整数配列に含まれる最小の数を取得または出力する．
+%
+\begin{syntax}
+|\MinofArray[|\Meta{ターゲット}|]{|\Meta{配列名}|}|
+\end{syntax}
+
+\subsection{総和}
+
+|\SumArray| は指定した整数配列の全要素の総和を取得または出力する．
+%
+\begin{syntax}
+|\SumArray[|\Meta{ターゲット}|]{|\Meta{配列名}|}|
+\end{syntax}
 
 \section{配列と文字列の変換}
 
-|\StringtoArray| 命令で，与えた文字列を1文字ずつに分解して，指定した配列の末尾に付加させる
+|\StringtoArray| で与えた文字列を1文字ずつに分解して，指定した配列の末尾に付加させる
 ことが可能である．
 %
 \begin{syntax}
 |\StringtoArray{|\Meta{配列名}|}{|\Meta{文字列}|}|
 \end{syntax}
 
-逆に，|\toStringArray| 命令を用いると，指定した配列のもつ要素をすべてつなげた文字列を出力
+逆に，|\toStringArray| を用いると，指定した配列のもつ要素をすべてつなげた文字列を出力
 することができる．ただし，要素に制御綴が含まれる場合には，その展開および実行が行われる．
 %
 \begin{syntax}
 |\toStringArray{|\Meta{配列名}|}|
 \end{syntax}
 
-\section{配列と制御綴}
+\section{繰り返し処理}
 
-配列の要素に制御綴が含まれる場合，当該の制御綴は配列中では一切展開されず，そのままの状態で
-保持される．
+|\EachArray| を用いると，指定した配列のすべての要素に対して特定の操作を施すことができる．
+%
+\begin{syntax}
+|\EachArray{|\Meta{配列名}|}{|\Meta{操作}|}|
+\end{syntax}
+%
+ここで\Meta{操作}には |\foo{|\Meta{配列名}|}{|\Meta{インデックス}|}| の形の書式をもつ
+\textsf{TLArray}パッケージの制御綴を指定することができる．
+
+なお，|\EachArray| は\Meta{操作}に |\DeleteArray| を指定した際などになるべく高速な処理を
+行うことができるよう，配列の後方から順に処理を施すようになっている．
+
+\Note そのため，|\EachArray{bar}{\GetArray}| とすると配列の内容を逆順に（区切りのない
+「文字列」として）出力することができる．これは |\ReverseArray| してから |\toStringArray| 
+するよりも高速に動作する．
+
+\section{配列の破棄}
+
+|\DestructArray| を用いると，任意の配列を破棄するこができる．
+%
+\begin{syntax}
+|\DestructArray{|\Meta{配列名}|}|
+\end{syntax}
+
+配列を破棄すると，当該の配列にはいかなる操作もできなくなる．また，一度破棄した配列と同名の
+配列を新たに宣言した場合，その配列はまったく新しい配列となり，破棄前の状態は一切引き継がない．
+
+\Note \TeX プログラムの中で「宣言した配列は必ず破棄しなければならない」ということはまったく
+ない．配列の破棄は，主として一時的に利用するために宣言した配列に対して使用することを
+想定している．
+
+
+
+
 
 \end{document}
