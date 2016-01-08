@@ -20,8 +20,7 @@
 
 %%%% check commands
 \def\tlar@check@array#1{%
-  \expandafter\ifx\csname tlar@#1@num\endcsname\relax\tlar@error{Undefined Array}\fi
-}
+  \expandafter\ifx\csname tlar@#1@num\endcsname\relax\tlar@error{Undefined Array}\fi}
 \def\tlar@check@index#1#2{\begingroup
   \tlar@tempcnta#2\tlar@tempcntb\csname tlar@#1@num\endcsname\relax
   \ifnum\tlar@tempcnta<\z@\multiply\tlar@tempcnta\m@ne\else\advance\tlar@tempcntb\m@ne\fi
@@ -45,8 +44,7 @@
 \def\tlar@new@array@non{\def\tlar@new@array@num{0}\tlar@new@array@relax}
 \def\tlar@new@array@relax{\let\tlar@new@array@pre\relax\tlar@new@array}
 \def\tlar@set@new@array@num[#1]{%
-  \def\tlar@new@array@num{#1}\tlar@if@op{\tlar@set@new@array@pre}{\tlar@new@array@relax}%
-}
+  \def\tlar@new@array@num{#1}\tlar@if@op{\tlar@set@new@array@pre}{\tlar@new@array@relax}}
 \def\tlar@set@new@array@pre[#1]{\def\tlar@new@array@pre{#1}\tlar@new@array}
 \def\tlar@new@array#1{\begingroup  % #1:array(str)
   \expandafter\ifx\csname tlar@#1@num\endcsname\relax\else\tlar@error{Already exists}\fi
@@ -54,23 +52,20 @@
   \expandafter\xdef\csname tlar@#1@num\endcsname{\the\tlar@tempcnta}%
   \@whilenum\tlar@tempcnta>\z@\do{\advance\tlar@tempcnta\m@ne
     \expandafter\tlar@glet\csname tlar@#1@\the\tlar@tempcnta\endcsname\tlar@new@array@pre
-  }%
-\endgroup}
+  }\endgroup}
 
 %%%% get and output
 \def\LengthofArray{\tlar@prepare\tlar@@length@of@array}
 \let\SizeofArray\LengthofArray
 \def\tlar@@length@of@array#1{\tlar@check@array{#1}\tlar@length@of@array{#1}}
 \def\tlar@length@of@array#1{% #1:Array(str)
-  \expandafter\tlar@return\csname tlar@#1@num\endcsname
-}
+  \expandafter\tlar@return\csname tlar@#1@num\endcsname}
 
 \def\GetArray{\tlar@prepare\tlar@@get@array}
 \def\tlar@@get@array#1#2{\tlar@check@array{#1}\tlar@get@array{#1}{#2}}
 \def\tlar@get@array#1#2{\begingroup  % #1:array(str) #2:index(int)
   \tlar@check@index{#1}{#2}\tlar@set@index\tlar@tempcnta{#1}{#2}%
-  \expandafter\tlar@return\csname tlar@#1@\the\tlar@tempcnta\endcsname
-\endgroup}
+  \expandafter\tlar@return\csname tlar@#1@\the\tlar@tempcnta\endcsname\endgroup}
 
 \def\ShowArray#1{\begingroup  % #1:array(str)
   \tlar@check@array{#1}%
@@ -79,8 +74,7 @@
     \csname tlar@#1@\the\tlar@tempcnta\endcsname,\space
     \advance\tlar@tempcnta\@ne
   }%
-  \ifnum\tlar@tempcntb>\m@ne\csname tlar@#1@\the\tlar@tempcnta\endcsname\fi
-\endgroup}
+  \ifnum\tlar@tempcntb>\m@ne\csname tlar@#1@\the\tlar@tempcnta\endcsname\fi\endgroup}
 
 %%%% push, pop, shift, unshift
 \def\PushArray{\tlar@expand@or@not\tlar@@push@array}
@@ -89,8 +83,7 @@
   \tlar@set@length\tlar@tempcnta{#1}%
   \expandafter\tlar@def\csname tlar@#1@\the\tlar@tempcnta\endcsname{#2}%
   \advance\tlar@tempcnta\@ne
-  \expandafter\xdef\csname tlar@#1@num\endcsname{\the\tlar@tempcnta}%
-\endgroup}
+  \expandafter\xdef\csname tlar@#1@num\endcsname{\the\tlar@tempcnta}\endgroup}
 \def\tlar@push@array@r#1#2{\tlar@push@array{#2}{#1}}%
 
 \def\PopArray{\tlar@prepare\tlar@pop@array}
@@ -101,8 +94,7 @@
     \advance\tlar@tempcnta\m@ne
     \expandafter\tlar@return\csname tlar@#1@\the\tlar@tempcnta\endcsname
     \expandafter\xdef\csname tlar@#1@num\endcsname{\the\tlar@tempcnta}%
-  \else\tlar@warn{Try to pop empty array}\fi
-\endgroup}
+  \else\tlar@warn{Try to pop empty array}\fi\endgroup}
 
 \def\ShiftArray{\tlar@prepare\tlar@@shift@array}
 \def\tlar@@shift@array#1{\tlar@check@array{#1}\tlar@shift@array{#1}}
@@ -119,8 +111,7 @@
     }%
     \advance\tlar@tempcnta\m@ne
     \expandafter\xdef\csname tlar@#1@num\endcsname{\the\tlar@tempcnta}%
-  \else\tlar@warn{Try to shift empty array}\fi
-\endgroup}
+  \else\tlar@warn{Try to shift empty array}\fi\endgroup}
 
 \def\UnshiftArray{\tlar@expand@or@not\tlar@@unshift@array}
 \def\tlar@@unshift@array#1#2{\tlar@check@array{#1}\tlar@unshift@array{#1}{#2}}
@@ -134,8 +125,7 @@
   }%
   \expandafter\tlar@def\csname tlar@#1@0\endcsname{#2}%
   \advance\tlar@tempcnta\@ne
-  \expandafter\xdef\csname tlar@#1@num\endcsname{\the\tlar@tempcnta}%
-\endgroup}
+  \expandafter\xdef\csname tlar@#1@num\endcsname{\the\tlar@tempcnta}\endgroup}
 
 %%%% basic operation
 \def\InsertArray{\tlar@expand@or@not\tlar@@insert@array}
@@ -156,8 +146,7 @@
   \expandafter\tlar@def\csname tlar@#1@\the\tlar@tempcnta\endcsname{#3}\advance\tlar@tempcntb\@ne
   \ifnum\tlar@tempcnta<\tlar@tempcntb\else
     \advance\tlar@tempcnta\@ne\tlar@tempcntb\tlar@tempcnta\relax
-  \fi\expandafter\xdef\csname tlar@#1@num\endcsname{\the\tlar@tempcntb}%
-\endgroup}
+  \fi\expandafter\xdef\csname tlar@#1@num\endcsname{\the\tlar@tempcntb}\endgroup}
 
 \def\DeleteArray#1#2{\tlar@check@array{#1}\tlar@delete@array{#1}{#2}}
 \def\tlar@delete@array#1#2{\begingroup  % #1:array(str) #2:index(int)
@@ -170,15 +159,13 @@
     \expandafter\tlar@glet\csname tlar@#1@\the\tlar@tempcnta\endcsname\tlar@temp
     \advance\tlar@tempcnta\tw@
   }\endgroup\advance\tlar@tempcntb\m@ne
-  \expandafter\xdef\csname tlar@#1@num\endcsname{\the\tlar@tempcntb}%
-\endgroup}
+  \expandafter\xdef\csname tlar@#1@num\endcsname{\the\tlar@tempcntb}\endgroup}
 
 \def\SpliceArray{\tlar@expand@or@not\tlar@@splice@array}
 \def\tlar@@splice@array#1#2#3{\tlar@check@array{#1}\tlar@splice@array{#1}{#2}{#3}}
 \def\tlar@splice@array#1#2#3{\begingroup  % #1:array(str) #2:index(int) #3:value(any)
   \tlar@check@index{#1}{#2}\tlar@set@index\tlar@tempcnta{#1}{#2}%
-  \expandafter\tlar@def\csname tlar@#1@\the\tlar@tempcnta\endcsname{#3}%
-\endgroup}
+  \expandafter\tlar@def\csname tlar@#1@\the\tlar@tempcnta\endcsname{#3}\endgroup}
 
 \def\ReplaceArray{\tlar@expand@or@not\tlar@replace}
 \def\tlar@@replace@array#1#2#3{\tlar@check@array{#1}\tlar@replace@array{#1}{#2}{#3}}
@@ -188,8 +175,7 @@
     \expandafter\ifx\csname tlar@#1@\the\tlar@tempcnta\endcsname\tlar@temp
       \expandafter\tlar@def\csname tlar@#1@\the\tlar@tempcnta\endcsname{#3}%
     \fi\advance\tlar@tempcnta\@ne
-  }%
-\endgroup}
+  }\endgroup}
 
 \def\RemoveArray#1#2{\begingroup  % #1:array #2:value(any)
   \tlar@check@array{#1}\def\tlar@temp{#2}%
@@ -198,8 +184,7 @@
     \expandafter\ifx\csname tlar@#1@\the\tlar@tempcnta\endcsname\tlar@temp
       \tlar@delete@array{#1}{\tlar@tempcnta}%
     \fi\advance\tlar@tempcnta\m@ne
-  }%
-\endgroup}
+  }\endgroup}
 
 \def\XSwapArray#1#2#3#4{\tlar@check@array{#1}\tlar@check@array{#3}\tlar@xswap{#1}{#2}{#3}{#4}}
 \def\SwapArray#1#2#3{\tlar@check@array{#1}\tlar@xswap{#1}{#2}{#1}{#3}}
@@ -208,8 +193,7 @@
   \expandafter\let\expandafter\tlar@tempa\csname tlar@#1@\the\tlar@tempcnta\endcsname
   \expandafter\let\expandafter\tlar@tempb\csname tlar@#3@\the\tlar@tempcntb\endcsname
   \expandafter\tlar@glet\csname tlar@#1@\the\tlar@tempcnta\endcsname\tlar@tempb
-  \expandafter\tlar@glet\csname tlar@#3@\the\tlar@tempcntb\endcsname\tlar@tempa
-\endgroup}
+  \expandafter\tlar@glet\csname tlar@#3@\the\tlar@tempcntb\endcsname\tlar@tempa\endgroup}
 
 \def\ReverseArray#1{\begingroup  % #1:aray(str)
   \tlar@check@array{#1}%
@@ -219,15 +203,13 @@
     \tlar@xswap{#1}{\tlar@tempcnta}{#1}{\tlar@tempcntb}%
     \advance\tlar@tempcnta\@ne\advance\tlar@tempcntb\m@ne
     \ifnum\tlar@tempcnta<\tlar@tempcntb\else\@tlar@loop@false\fi
-  }%
-\endgroup}
+  }\endgroup}
 
 \def\ExpandArray#1#2{\begingroup  % #1:Array(str) #2:index(int)
   \tlar@check@array{#1}\tlar@check@index{#1}{#2}%
   \tlar@set@index\tlar@tempcnta{#1}{#2}\tlar@set@length\tlar@tempcntb{#1}%
   \expandafter\let\expandafter\tlar@temp\csname tlar@#1@\the\tlar@tempcnta\endcsname
-  \expandafter\xdef\csname tlar@#1@\the\tlar@tempcnta\endcsname{\tlar@temp}%
-\endgroup}
+  \expandafter\xdef\csname tlar@#1@\the\tlar@tempcnta\endcsname{\tlar@temp}\endgroup}
 
 %%%% numeric
 \def\SumArray{\tlar@prepare\tlar@@sum@array}
@@ -238,8 +220,7 @@
     \expandafter\advance\expandafter\tlar@calc@cnt\csname tlar@#1@\the\tlar@tempcnta\endcsname
     \advance\tlar@tempcnta\@ne
   }%
-  \tlar@return{\the\tlar@calc@cnt}%
-\endgroup}
+  \tlar@return{\the\tlar@calc@cnt}\endgroup}
 
 \def\MaxofArray{\tlar@prepare\tlar@@max@of@array}
 \def\tlar@@max@of@array#1{\tlar@check@array{#1}\tlar@max@of@array{#1}}
@@ -251,8 +232,7 @@
       \tlar@calc@cnt\csname tlar@#1@\the\tlar@tempcnta\endcsname\relax
     \fi\advance\tlar@tempcnta\@ne
   }%
-  \tlar@return{\the\tlar@calc@cnt}%
-\endgroup}
+  \tlar@return{\the\tlar@calc@cnt}\endgroup}
 
 \def\MinofArray{\tlar@prepare\tlar@@min@of@array}
 \def\tlar@@min@of@array#1{\tlar@check@array{#1}\tlar@min@of@array{#1}}
@@ -264,8 +244,7 @@
       \tlar@calc@cnt\csname tlar@#1@\the\tlar@tempcnta\endcsname\relax
     \fi\advance\tlar@tempcnta\@ne
   }%
-  \tlar@return{\the\tlar@calc@cnt}%
-\endgroup}
+  \tlar@return{\the\tlar@calc@cnt}\endgroup}
 
 %%%% array and string
 \def\toStringArray#1{\begingroup  % #1:array(str)
@@ -274,13 +253,11 @@
   \@whilenum\tlar@tempcnta<\tlar@tempcntb\do{%
     \csname tlar@#1@\the\tlar@tempcnta\endcsname
     \advance\tlar@tempcnta\@ne
-  }%
-\endgroup}
+  }\endgroup}
 
 \def\StringtoArray#1#2{\begingroup  % #1:array(str)  #2:value(any)
   \tlar@check@array{#1}\tlar@def@std
-  \@tfor\member:=#2\do{\expandafter\tlar@push@array@r\expandafter{\member}{#1}}%
-\endgroup}
+  \@tfor\member:=#2\do{\expandafter\tlar@push@array@r\expandafter{\member}{#1}}\endgroup}
 
 %%%% repetition
 \def\EachArray{\tlar@if@op{\tlar@each@array@range}{\tlar@each@array@default}}
@@ -292,12 +269,10 @@
   \tlar@set@index\tlar@tempcnta{#1}{#2}\tlar@set@index\tlar@tempcntb{#1}{#3}%
   \@whilenum\tlar@tempcnta<\tlar@tempcntb\do{#4{#1}{\tlar@tempcnta}\advance\tlar@tempcnta\@ne}%
   \@whilenum\tlar@tempcnta>\tlar@tempcntb\do{#4{#1}{\tlar@tempcnta}\advance\tlar@tempcnta\m@ne}%
-  #4{#1}{\tlar@tempcnta}%
-\endgroup}
+  #4{#1}{\tlar@tempcnta}\endgroup}
 
 %%%% destruction
 \def\DestructArray#1{% #1:array(str)
-  \tlar@check@array{#1}\expandafter\tlar@glet\csname tlar@#1@num\endcsname\relax
-}
+  \tlar@check@array{#1}\expandafter\tlar@glet\csname tlar@#1@num\endcsname\relax}
 
 %% EOF
