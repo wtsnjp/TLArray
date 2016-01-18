@@ -14,6 +14,7 @@
 %%%% counters and ifs
 \newcount\tlar@tempcnta
 \newcount\tlar@tempcntb
+\newcount\tlar@tempcntc
 \newcount\tlar@calc@cnt
 \newif\if@tlar@loop@\@tlar@loop@false
 \newif\if@tlar@get@\@tlar@get@false
@@ -32,12 +33,13 @@
 \def\tlar@def@std{\let\tlar@def\gdef}
 \def\tlar@def@exp{\let\tlar@def\xdef}
 \def\tlar@expand@or@not#1{\@ifstar{\tlar@def@exp#1}{\tlar@def@std#1}}
+\def\tlar@if@op{\@ifnextchar[}
 \def\tlar@set@index#1#2#3{#1#3\relax\ifnum#3<\z@\advance#1\csname tlar@#2@num\endcsname\relax\fi}
 \def\tlar@set@length#1#2{#1\csname tlar@#2@num\endcsname\relax}
 \def\tlar@prepare#1{\tlar@if@op{\tlar@set@cs#1}{\@tlar@get@false#1}}
 \def\tlar@set@cs#1[#2]{\@tlar@get@true\def\tlar@cs{#2}#1}
 \def\tlar@return#1{\if@tlar@get@\expandafter\xdef\tlar@cs{#1}\else#1\fi\@tlar@get@false}
-\def\tlar@if@op{\@ifnextchar[}
+% \def\tlar@get#1#2{\csname tlar@#1@\the#2\endcsname}
 
 %%%% declaration
 \def\NewArray{\tlar@if@op{\tlar@set@new@array@num}{\tlar@new@array@non}}
@@ -245,6 +247,24 @@
     \fi\advance\tlar@tempcnta\@ne
   }%
   \tlar@return{\the\tlar@calc@cnt}\endgroup}
+
+\def\BubbleSortArray#1{\tlar@check@array{#1}\tlar@bubble@sort@array{#1}}
+\def\tlar@bubble@sort@array#1{\begingroup  % #1:array(str)
+  \tlar@set@length\tlar@tempcnta{#1}\tlar@tempcntb\z@
+  \advance\tlar@tempcnta\m@ne
+  \edef\tlar@tempa{\the\tlar@tempcnta}%
+  \@whilenum\tlar@tempcntb<\tlar@tempa\do{%
+    \@whilenum\tlar@tempcnta>\tlar@tempcntb\do{%
+      \tlar@tempcntc\tlar@tempcnta\advance\tlar@tempcntc\m@ne
+      \ifnum\csname tlar@#1@\the\tlar@tempcnta\endcsname
+        <\csname tlar@#1@\the\tlar@tempcntc\endcsname
+        \tlar@xswap{#1}{\tlar@tempcnta}{#1}{\tlar@tempcntc}%
+      \fi
+      \advance\tlar@tempcnta\m@ne
+    }%
+    \tlar@tempcnta\tlar@tempa
+    \advance\tlar@tempcntb\@ne
+  }\endgroup}
 
 %%%% array and string
 \def\toStringArray#1{\begingroup  % #1:array(str)

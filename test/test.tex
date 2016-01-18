@@ -130,6 +130,8 @@
 
 \DestructArray{foo}
 
+\newpage
+
 \subsection*{numeric}
 
 \NewArray[1][27]{foo}
@@ -145,6 +147,18 @@
 \PushArray{foo}{a}
 %% ERROR: Missing number, treated as zero.
 %\SumArray{foo}
+
+\DestructArray{foo}
+
+\NewArray{foo}
+\PushArray{foo}{8}\PushArray{foo}{3}\PushArray{foo}{6}\PushArray{foo}{2}\PushArray{foo}{5}
+\PushArray{foo}{1}\PushArray{foo}{4}\PushArray{foo}{9}\PushArray{foo}{7}
+
+\CO
+[8, 3, 6, 2, 5, 1, 4, 9, 7]()[1, 2, 3, 4, 5, 6, 7, 8, 9]
+
+\TO
+[\ShowArray{foo}](\BubbleSortArray{foo})[\ShowArray{foo}]
 
 \DestructArray{foo}
 
