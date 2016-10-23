@@ -266,6 +266,12 @@
     \advance\tlar@tempcntb\@ne
   }\endgroup}
 
+\def\QuickSortArray#1{\tlar@check@array{#1}\tlar@quick@sort@array{#1}}
+\def\tlar@quick@sort@array#1{\begingroup
+  \tlar@set@length\tlar@tempcnta{#1}\advance\tlar@tempcnta\m@ne
+  \tlar@quick@sort{#1}{\z@}{\tlar@tempcnta}%
+\endgroup}
+
 %%%% array and string
 \def\toStringArray#1{\begingroup  % #1:array(str)
   \tlar@check@array{#1}%
