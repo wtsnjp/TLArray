@@ -2,13 +2,62 @@
 % tlarray.sty
 %
 
-% Dependencies
+% dependencies
 \RequirePackage{expl3}
 \RequirePackage{xparse}
 
-% Package declaration
-\ProvidesExplPackage {wtref} {2017/10/05} {1.0.0}
-  {Extending cross-reference system}
+% package declaration
+\ProvidesExplPackage {tlarray} {2017/10/05} {1.0.0}
+  {A library to support LL-like array in TeX on LaTeX}
+
+% create/destruct array
+\NewDocumentCommand \NewArray { m }
+  {
+    \int_new:c { l__tlar_array_#1_length_int }
+    \int_new:c { l__tlar_array_#1_start_int }
+  }
+
+\NewDocumentCommand \DestructArray { m }
+  {
+    \__tlar_check_array_exist:n { #1 }
+    \cs_undefine:c { l__tlar_array_#1_length_int }
+    \cs_undefine:c { l__tlar_array_#1_start_int }
+  }
+
+% checking existence of array
+\msg_new:nnnn { tlarray } { nonexist-array }
+  { Array~'#1'~does~not~exist. }
+  { Please~declare~array~'#1'~before~use~it. }
+
+\cs_new_nopar:Npn \__tlar_check_array_exist:n #1
+  {
+    \int_if_exist:cF { l__tlar_array_#1_length_int }
+      {
+        \msg_error:nnx { tlarray } { nonexist-array } { #1 }
+      }
+  }
+
+% print commands
+\NewDocumentCommand \PrintArray { m }
+  {
+    \__tlar_check_array_exist:n { #1 }
+    % not yet
+  }
+
+\NewDocumentCommand \PrintLengthOfArray { m }
+  {
+    \__tlar_check_array_exist:n { #1 }
+    \int_use:c { l__tlar_array_#1_length_int }
+  }
+
+\cs_new_eq:NN \PrintSizeOfArray \PrintLengthOfArray
+
+% push/pop
+\NewDocumentCommand \PushArray { m m }
+  {
+    \__tlar_check_array_exist:n { #1 }
+    \int_incr:c { l__tlar_array_#1_length_int }
+  }
 
 % vim: ft=expl3 nospell:
 %% EOF
