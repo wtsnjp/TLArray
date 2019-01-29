@@ -2,33 +2,48 @@
 % tlarray.sty
 %
 
-% dependencies
+% -------------------------------------------------- dependencies
 \RequirePackage{expl3}
 \RequirePackage{xparse}
-
-% package declaration
 \ProvidesExplPackage {tlarray} {2017/10/05} {1.0.0}
   {A library to support LL-like array in TeX on LaTeX}
 
-% create/destruct array
-\NewDocumentCommand \NewArray { m }
+% -------------------------------------------------- messages
+
+\msg_new:nnnn { tlarray } { nonexist-array }
+  { Array~'#1'~does~not~exist. }
+  { Please~declare~array~'#1'~before~use~it. }
+
+% -------------------------------------------------- create/destruct array
+
+% #1: name of array (tl)
+\cs_new_nopar:Npn \tlar_new_array #1
   {
     \int_new:c { l__tlar_array_#1_length_int }
     \int_new:c { l__tlar_array_#1_start_int }
   }
 
-\NewDocumentCommand \DestructArray { m }
+% #1: name of array (tl)
+\cs_new_nopar:Npn \tlar_destruct_array #1
   {
     \__tlar_check_array_exist:n { #1 }
     \cs_undefine:c { l__tlar_array_#1_length_int }
     \cs_undefine:c { l__tlar_array_#1_start_int }
   }
 
-% checking existence of array
-\msg_new:nnnn { tlarray } { nonexist-array }
-  { Array~'#1'~does~not~exist. }
-  { Please~declare~array~'#1'~before~use~it. }
+\NewDocumentCommand \NewArray { m }
+  {
+    \tlar_new_array { #1 }
+  }
 
+\NewDocumentCommand \DestructArray { m }
+  {
+    \tlar_destruct_array { #1 }
+  }
+
+% -------------------------------------------------- utility commands
+
+% #1: name of array (tl)
 \cs_new_nopar:Npn \__tlar_check_array_exist:n #1
   {
     \int_if_exist:cF { l__tlar_array_#1_length_int }
@@ -37,17 +52,49 @@
       }
   }
 
-% print commands
-\NewDocumentCommand \PrintArray { m }
+% #1: name of array (tl)
+% #2: index (int expression)
+% #3: value (tl)
+\cs_new_nopar:Npn \__tlar_assign #1#2#3
+  {
+    \tl_gclear_new:c
+      {
+        l__tlar_array_#1_
+          \int_eval:n { \int_use:c { l__tlar_array_#1_start_int } + #2 }
+        _tl
+      }
+    \tl_gset:cn
+      {
+        l__tlar_array_#1_
+          \int_eval:n { \int_use:c { l__tlar_array_#1_start_int } + #2 }
+        _tl
+      } { #3 }
+  }
+
+% -------------------------------------------------- print commands
+
+% #1: name of array (tl)
+\cs_new_nopar:Npn \tlar_print_array #1
   {
     \__tlar_check_array_exist:n { #1 }
     % not yet
   }
 
-\NewDocumentCommand \PrintLengthOfArray { m }
+% #1: name of array (tl)
+\cs_new_nopar:Npn \tlar_print_length_of_array #1
   {
     \__tlar_check_array_exist:n { #1 }
     \int_use:c { l__tlar_array_#1_length_int }
+  }
+
+\NewDocumentCommand \PrintArray { m }
+  {
+    \tlar_print_array { #1 }
+  }
+
+\NewDocumentCommand \PrintLengthOfArray { m }
+  {
+    \tlar_print_length_of_array { #1 }
   }
 
 \cs_new_eq:NN \PrintSizeOfArray \PrintLengthOfArray
@@ -56,7 +103,11 @@
 \NewDocumentCommand \PushArray { m m }
   {
     \__tlar_check_array_exist:n { #1 }
-    \int_incr:c { l__tlar_array_#1_length_int }
+    \int_gincr:c { l__tlar_array_#1_length_int }
+    \__tlar_assign { #1 }
+      {
+        \int_use:c { l__tlar_array_#1_length_int } - 1
+      } { #2 }
   }
 
 % vim: ft=expl3 nospell:
